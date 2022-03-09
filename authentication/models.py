@@ -108,7 +108,7 @@ class EntryType(models.Model):
     category = models.IntegerField(default=0)
     short_desc = models.TextField(null=True,blank=True)
     def __str__(self):
-        return self.name
+        return str(self.category)
 
 
 class Entries(models.Model):
