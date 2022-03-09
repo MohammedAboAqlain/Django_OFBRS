@@ -42,6 +42,20 @@ class CreateUserSerializer(serializers.ModelSerializer):
             type_id=type_id,
             password=password,
         )
+        # if type_id == 0:
+        #     if User.objects.filter(darsh_key=0).exists():
+        #         msg = _('يوجد مشكلة في التسجيل ، بسبب وجود مستخدم من قبل يمتلك نفس فيمة الDarsh key  = 0')
+        #         raise serializers.ValidationError(msg, code='authorization')
+        #     user.darsh_key = 0
+        #     user.save()
+        #
+        # elif type_id == 1:
+        #     user.market = market
+        #     last_darsh_key = User.objects.filter(type_id=1).last().darsh_key
+        #     if last_darsh_key < 4000:
+        #         user.darsh_key = User.filter
+        #     user.save()
+        #     return user
         if user:
             if type_id == 1 :
                 user.market = market

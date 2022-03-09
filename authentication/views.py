@@ -259,7 +259,7 @@ class AllStorageEntries(generics.ListAPIView):
 
         criterion1 = Q(date_created__range=[From_date_created,To_date_created])
         criterion2 = Q(date_updated__range=[From_date_updated,To_date_updated])
-        criterion3 = Q(type__category=14)
+        criterion3 = Q(type_id=14)
         StorageEntries = StorageEntry.objects.filter((criterion1|criterion2),~criterion3).order_by("-date_created")
         return StorageEntries
 
@@ -562,13 +562,14 @@ from django.http import JsonResponse
 @permission_classes([IsAuthenticated])
 def reset_broken(request):
     try:
-        entry_14 = EntryType.objects.get(category=14)
+        entry_14 = EntryType.objects.get(id=14)
     except:
         return JsonResponse(status=400,data={'status':False,"message": "System Can't find EntryType with categoty equal to 14"})
 
     try:
-        StorageEntry_11 = StorageEntry.objects.filter(type__category=11)
+        StorageEntry_11 = StorageEntry.objects.filter(type_id=11)
         StorageEntry_11.update(type=entry_14)
+
     except:
         return JsonResponse(status=500, data={'status': False,
                                               "message": "لم تتم العملية بنجاح"})
@@ -579,12 +580,12 @@ def reset_broken(request):
 @permission_classes([IsAuthenticated])
 def reset_lost(request):
     try:
-        entry_14 = EntryType.objects.get(category=14)
+        entry_14 = EntryType.objects.get(id=14)
     except:
         return JsonResponse(status=400,data={'status':False,"message": "System Can't find EntryType with categoty equal to 14"})
 
     try:
-        StorageEntry_11 = StorageEntry.objects.filter(type__category=4)
+        StorageEntry_11 = StorageEntry.objects.filter(type_id=4)
         StorageEntry_11.update(type=entry_14)
     except:
         return JsonResponse(status=500, data={'status': False,
@@ -684,17 +685,17 @@ def get_storage_balance(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_number_manufactured(request):
-    number_manufactured = sum(list(StorageEntry.objects.filter(type__category=15).values_list('quantity_diff', flat=True)))
+    number_manufactured = sum(list(StorageEntry.objects.filter(type_id=15).values_list('quantity_diff', flat=True)))
     return JsonResponse(status=201, data={"number_manufactured": number_manufactured})
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_calculate_lost(request):
-    lost  = sum(list(StorageEntry.objects.filter(type__category=4).values_list('quantity_diff', flat=True)))
+    lost  = sum(list(StorageEntry.objects.filter(type_id=4).values_list('quantity_diff', flat=True)))
     return JsonResponse(status=201, data={"lost": lost})
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_broken(request):
-    broken  = sum(list(StorageEntry.objects.filter(type__category=11).values_list('quantity_diff', flat=True)))
+    broken  = sum(list(StorageEntry.objects.filter(type_id=11).values_list('quantity_diff', flat=True)))
     return JsonResponse(status=201, data={"broken": broken})
 
 @api_view(['GET'])
