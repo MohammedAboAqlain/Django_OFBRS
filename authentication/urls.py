@@ -32,6 +32,9 @@ from authentication.views import (
                     AllStorageEntries,
                     get_broken,
                     RegisterAPI,
+                    AllEntries,
+                    get_fisherman_balances,
+                    get_seller_balances,
                     )
 
 urlpatterns = [
@@ -69,5 +72,8 @@ urlpatterns = [
     path('get-lost/', get_calculate_lost),
     path('get-storage-entries/', AllStorageEntries.as_view()),
     path('get-broken/', get_broken),
+    path('get-entries/', AllEntries.as_view()),
+    path('get-fisherman-balances/', get_fisherman_balances),
+    path('get-Seller-balances/', get_seller_balances),
 ]
 

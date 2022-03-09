@@ -93,7 +93,7 @@ class LoginAPI(KnoxLoginView):
 class IndexMarket(generics.ListAPIView):
     from .serializers import MarketSerializer
     serializer_class = MarketSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     pagination_class = None
 
     def get_queryset(self):
@@ -262,6 +262,45 @@ class AllStorageEntries(generics.ListAPIView):
         criterion3 = Q(type__category=14)
         StorageEntries = StorageEntry.objects.filter((criterion1|criterion2),~criterion3).order_by("-date_created")
         return StorageEntries
+
+    def list(self, request, *args, **kwargs):
+        query = self.get_queryset()
+        if query == 0 :
+            return Response({
+                            'status':False,
+                            'msg':"يرجى التأكد من إرسال جميع البيانات المطلوبة",
+                            },
+                            status=400
+                           )
+        queryset = self.filter_queryset(query)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response({
+            'data' :serializer.data,
+        })
+class AllEntries(generics.ListAPIView):
+    from .serializers import FullEntrySerializer
+    serializer_class = FullEntrySerializer
+    permission_classes = [IsAuthenticated]
+    pagination_class = None
+
+    def get_queryset(self):
+        try:
+            from datetime import datetime,timedelta
+            From_date_created = datetime.strptime(self.request.GET['From_date_created'],"%Y-%m-%d").date()
+            To_date_created = datetime.strptime(self.request.GET['To_date_created'],"%Y-%m-%d").date() + timedelta(days=1)
+            From_date_updated = datetime.strptime(self.request.GET['From_date_updated'],"%Y-%m-%d").date()
+            To_date_updated = datetime.strptime(self.request.GET['To_date_updated'],"%Y-%m-%d").date() + timedelta(days=1)
+        except:
+            return 0
+
+        criterion1 = Q(date_created__range=[From_date_created,To_date_created])
+        criterion2 = Q(date_updated__range=[From_date_updated,To_date_updated])
+        entries = Entries.objects.filter(criterion1|criterion2).order_by("-date_created")
+        return entries
 
     def list(self, request, *args, **kwargs):
         query = self.get_queryset()
@@ -657,6 +696,24 @@ def get_calculate_lost(request):
 def get_broken(request):
     broken  = sum(list(StorageEntry.objects.filter(type__category=11).values_list('quantity_diff', flat=True)))
     return JsonResponse(status=201, data={"broken": broken})
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_fisherman_balances(request):
+    fishermans = User.objects.filter(type_id__range=[5,7],is_active=True,is_deleted=False)
+    balances = 0
+    for fisherman in fishermans:
+        balances += fisherman.balance()
+    return JsonResponse(status=201, data={"balances": balances})
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_seller_balances(request):
+    sellers = User.objects.filter(type_id=1,is_active=True,is_deleted=False)
+    balances = 0
+    for seller in sellers:
+        balances += seller.balance()
+    return JsonResponse(status=201, data={"balances": balances})
 
 class GetEntryTypeObject(generics.RetrieveAPIView):
     from .serializers import EntrySerializer
