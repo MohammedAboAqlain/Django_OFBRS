@@ -122,7 +122,7 @@ class Entries(models.Model):
     date_updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.quantity
+        return self.giver_id.phone
 
 class StorageEntry(models.Model):
     type = models.ForeignKey('authentication.EntryType', on_delete=models.CASCADE, related_name='type')
@@ -131,8 +131,8 @@ class StorageEntry(models.Model):
     comment = models.TextField(null=True,blank=True)
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
-    # def __str__(self):
-    #     return self.quantity_diff
+    def __str__(self):
+        return self.caused_by.name
 
 class StaticSettings(models.Model):
     project_name = models.CharField(max_length=255,null=True,blank=True)
