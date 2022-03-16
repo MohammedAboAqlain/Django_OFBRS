@@ -178,7 +178,7 @@ class EntrySerializer(serializers.ModelSerializer):
 class FullEntrySerializer(serializers.ModelSerializer):
     class Meta:
         model = Entries
-        fields = ['id','type','giver_id', 'taker_id', 'quantity', 'unit_price', 'comment','date_created','date_updated']
+        fields = ['id','type','giver_id','giver_name', 'taker_id', 'taker_name', 'quantity', 'unit_price', 'comment','date_created','date_updated']
 
 class QSerializer(serializers.ModelSerializer):
     class Meta:
