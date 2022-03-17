@@ -28,12 +28,55 @@ class CreateUserSerializer(serializers.ModelSerializer):
         except:
             msg = _('يوجد مشكلة في التسجيل')
             raise serializers.ValidationError(msg, code='authorization')
-
+        new_darsh_key = None
         if type_id == 1:
             try:
                 market = validated_data['market']
             except:
                 msg = _('يرجى التأكد من إرسال المعرف الخاص بالسوق')
+                raise serializers.ValidationError(msg, code='authorization')
+
+
+        if type_id == 0:
+            if User.objects.filter(darsh_key=0).exists():
+                msg = _('يوجد مشكلة في التسجيل ، بسبب وجود مستخدم من قبل يمتلك نفس فيمة الDarsh key  = 0')
+                raise serializers.ValidationError(msg, code='authorization')
+            new_darsh_key = 0
+        elif type_id == 1:
+            sellers = User.objects.filter(type_id=1)
+            try:
+                last_darsh_key = int(sellers.last().darsh_key)
+            except:
+                last_darsh_key = 3999
+
+            print("9"*100)
+            print(last_darsh_key)
+            if (last_darsh_key+1) >= 4000 and not (User.objects.filter(darsh_key=(last_darsh_key+1)).exists()):
+                new_darsh_key = last_darsh_key + 1
+            else:
+                msg = _('يوجد مشكلة في التسجيل ، Darsh key Error')
+                raise serializers.ValidationError(msg, code='authorization')
+        elif type_id == 5:
+            fishermen_1 = User.objects.filter(type_id=5)
+            try:
+                last_darsh_key = int(fishermen_1.last().darsh_key)
+            except:
+                last_darsh_key = 999
+            if (1999 >= (last_darsh_key + 1) >= 1000 ) and not (User.objects.filter(darsh_key=(last_darsh_key+1)).exists()):
+                new_darsh_key = last_darsh_key + 1
+            else:
+                msg = _('يوجد مشكلة في التسجيل ، Darsh key Error')
+                raise serializers.ValidationError(msg, code='authorization')
+        elif type_id == 6:
+            fishermen_2 = User.objects.filter(type_id=6)
+            try:
+                last_darsh_key = int(fishermen_2.last().darsh_key)
+            except:
+                last_darsh_key = 1999
+            if (2999 >= (last_darsh_key + 1) >= 2000) and not (User.objects.filter(darsh_key=(last_darsh_key+1)).exists()):
+                new_darsh_key = last_darsh_key + 1
+            else:
+                msg = _('يوجد مشكلة في التسجيل ، Darsh key Error')
                 raise serializers.ValidationError(msg, code='authorization')
 
         user = User.objects.create_user(
@@ -42,27 +85,14 @@ class CreateUserSerializer(serializers.ModelSerializer):
             type_id=type_id,
             password=password,
         )
-        # if type_id == 0:
-        #     if User.objects.filter(darsh_key=0).exists():
-        #         msg = _('يوجد مشكلة في التسجيل ، بسبب وجود مستخدم من قبل يمتلك نفس فيمة الDarsh key  = 0')
-        #         raise serializers.ValidationError(msg, code='authorization')
-        #     user.darsh_key = 0
-        #     user.save()
-        #
-        # elif type_id == 1:
-        #     user.market = market
-        #     last_darsh_key = User.objects.filter(type_id=1).last().darsh_key
-        #     if last_darsh_key < 4000:
-        #         user.darsh_key = User.filter
-        #     user.save()
-        #     return user
         if user:
-            if type_id == 1 :
+            if user.type_id == 1 :
                 user.market = market
-                user.save()
-                return user
+                user.darsh_key = new_darsh_key
             else:
-                return user
+                user.darsh_key = new_darsh_key
+            user.save()
+            return user
         else:
             msg = _('يوجد مشكلة في التسجيل')
             raise serializers.ValidationError(msg, code='authorization')

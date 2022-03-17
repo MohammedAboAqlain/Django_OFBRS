@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'knox',
     'authentication',
 ]
-
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'knox.auth.TokenAuthentication',
