@@ -124,6 +124,24 @@ class Entries(models.Model):
     def __str__(self):
         return self.giver_id.phone
 
+    def giver_name(self):
+        if self.giver_id:
+            if self.giver_id.name:
+                return self.giver_id.name
+            else:
+                return None
+        else:
+            return None
+    def taker_name(self):
+        if self.taker_id:
+            if self.taker_id.name:
+                return self.taker_id.name
+            else:
+                return None
+        else:
+            return None
+
+
 class StorageEntry(models.Model):
     type = models.ForeignKey('authentication.EntryType', on_delete=models.CASCADE, related_name='type')
     caused_by = models.ForeignKey('authentication.EntryType', on_delete=models.CASCADE,related_name='caused_by')
