@@ -320,6 +320,47 @@ class AllEntries(generics.ListAPIView):
         return Response({
             'data' :serializer.data,
         })
+class AllEntriesForUser(generics.ListAPIView):
+    from .serializers import FullEntrySerializer
+    serializer_class = FullEntrySerializer
+    permission_classes = [IsAuthenticated]
+    pagination_class = None
+
+    def get_queryset(self):
+        try:
+            user_id = self.kwargs.get('user_id')
+            from datetime import datetime,timedelta
+            From_date_created = datetime.strptime(self.request.GET['From_date_created'],"%Y-%m-%d").date()
+            To_date_created = datetime.strptime(self.request.GET['To_date_created'],"%Y-%m-%d").date() + timedelta(days=1)
+            From_date_updated = datetime.strptime(self.request.GET['From_date_updated'],"%Y-%m-%d").date()
+            To_date_updated = datetime.strptime(self.request.GET['To_date_updated'],"%Y-%m-%d").date() + timedelta(days=1)
+        except:
+            return 0
+
+        criterion1 = Q(date_created__range=[From_date_created,To_date_created])
+        criterion2 = Q(date_updated__range=[From_date_updated,To_date_updated])
+        criterion3 = Q(giver_id_id=user_id)
+        entries = Entries.objects.filter((criterion1|criterion2) & criterion3 ).order_by("-date_created")
+        return entries
+
+    def list(self, request, *args, **kwargs):
+        query = self.get_queryset()
+        if query == 0 :
+            return Response({
+                            'status':False,
+                            'msg':"يرجى التأكد من إرسال جميع البيانات المطلوبة",
+                            },
+                            status=400
+                           )
+        queryset = self.filter_queryset(query)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response({
+            'data' :serializer.data,
+        })
 
 class AllFisherman(generics.ListAPIView):
     from .serializers import GetAllSellerSerializer
