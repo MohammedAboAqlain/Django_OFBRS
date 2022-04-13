@@ -340,7 +340,8 @@ class AllEntriesForUser(generics.ListAPIView):
         criterion1 = Q(date_created__range=[From_date_created,To_date_created])
         criterion2 = Q(date_updated__range=[From_date_updated,To_date_updated])
         criterion3 = Q(giver_id_id=user_id)
-        entries = Entries.objects.filter((criterion1|criterion2) & criterion3 ).order_by("-date_created")
+        criterion4 = Q(taker_id_id=user_id)
+        entries = Entries.objects.filter((criterion1|criterion2) & (criterion3|criterion4) ).order_by("-date_created")
         return entries
 
     def list(self, request, *args, **kwargs):
